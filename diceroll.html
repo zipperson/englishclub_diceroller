@@ -6,9 +6,10 @@
   <style>
     body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
     .dice-container { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 20px; }
-    .dice { padding: 20px; border: 2px solid #333; border-radius: 10px; min-width: 150px; background: #f9f9f9; }
+    .dice { padding: 20px; border: 2px solid #333; border-radius: 10px; min-width: 180px; background: #f9f9f9; }
     .result { font-size: 20px; margin-top: 10px; font-weight: bold; }
     button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    #story { margin-top: 30px; font-size: 22px; font-weight: bold; color: #222; }
   </style>
 </head>
 <body>
@@ -17,43 +18,61 @@
   <div class="dice-container" id="diceContainer"></div>
 
   <button onclick="rollAll()">🎲 Roll All</button>
+  <button onclick="createStory()">✍️ Create Story</button>
+
+  <div id="story"></div>
 
   <script>
-    // Parse URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const diceSets = [];
-    let diceIndex = 1;
-
-    while (urlParams.has(`set${diceIndex}`)) {
-      const items = urlParams.get(`set${diceIndex}`).split(",");
-      diceSets.push(items);
-      diceIndex++;
-    }
+    // Predefined dice sets
+    const diceSets = [
+      { name: "Theme", items: ["Romance", "Dystopian", "Revenge", "Redemption", "Friendship", "Justice"] },
+      { name: "Setting", items: ["Under the Sea", "At the planet Mars", "At the Beach", "In a Medieval Castle", "Inside a Giant Fig", "In an Alternate Universe"] },
+      { name: "Character", items: ["Silly Monkey", "Beautiful Princess", "Clever Detective", "Wealthy Heir", "Large Worm", "Great Circus Performer"] },
+      { name: "Conflict", items: ["A Stolen Jewel", "The End of The World", "A Zombie Apocalypse", "Evil Robots", "Drought", "A Curse"] }
+    ];
 
     // Render dice on the page
     const container = document.getElementById("diceContainer");
-    diceSets.forEach((set, i) => {
+    diceSets.forEach((dice, i) => {
       const div = document.createElement("div");
       div.className = "dice";
       div.innerHTML = `
-        <h2>Dice ${i+1}</h2>
-        <div class="result" id="result${i+1}">-</div>
+        <h2>${dice.name}</h2>
+        <div class="result" id="result${i}">-</div>
       `;
       container.appendChild(div);
     });
 
+    // Roll a single dice
     function rollDice(diceIndex) {
-      const set = diceSets[diceIndex];
+      const set = diceSets[diceIndex].items;
       const choice = set[Math.floor(Math.random() * set.length)];
-      document.getElementById(`result${diceIndex+1}`).textContent = choice;
+      document.getElementById(`result${diceIndex}`).textContent = choice;
     }
 
+    // Roll all dice
     function rollAll() {
       for (let i = 0; i < diceSets.length; i++) {
         rollDice(i);
       }
+      document.getElementById("story").textContent = ""; // clear story
+    }
+
+    // Create a story from dice results
+    function createStory() {
+      const theme = document.getElementById("result0").textContent;
+      const setting = document.getElementById("result1").textContent;
+      const character = document.getElementById("result2").textContent;
+      const conflict = document.getElementById("result3").textContent;
+
+      if (theme === "-" || setting === "-" || character === "-" || conflict === "-") {
+        document.getElementById("story").textContent = "🎲 Please roll all dice first!";
+        return;
+      }
+
+      const story = `A story of ${theme} unfolds ${setting}, where a ${character} faces the conflict of ${conflict}.`;
+      document.getElementById("story").textContent = story;
     }
   </script>
 </body>
 </html>
-
